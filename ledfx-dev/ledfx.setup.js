@@ -265,7 +265,9 @@ function runCloning(selectedRepos) {
 
   const dynamicWorkspaceContent = {
     folders: selectedFolders,
-    settings: {},
+    settings: {
+      "workbench.startupEditor": "readme",
+    },
     tasks: {
       version: '2.0.0',
       tasks: filteredTasks
