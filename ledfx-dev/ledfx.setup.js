@@ -274,6 +274,19 @@ function runCloning(selectedRepos) {
     }
   };
   fs.writeFileSync(workspaceFile, JSON.stringify(dynamicWorkspaceContent, null, 2));
+  // Append __welcome__ folder entry if not present
+  try {
+    const workspaceJson = JSON.parse(fs.readFileSync(workspaceFile, 'utf8'));
+    if (!Array.isArray(workspaceJson.folders)) workspaceJson.folders = [];
+    const hasWelcome = workspaceJson.folders.some(f => f.path === "__welcome__");
+    if (!hasWelcome) {
+      workspaceJson.folders.push({ path: "__welcome__", name: "_Welcome_" });
+      fs.writeFileSync(workspaceFile, JSON.stringify(workspaceJson, null, 2));
+      console.log('Appended __welcome__ folder to workspace file.');
+    }
+  } catch (e) {
+    console.error('Failed to append __welcome__ folder to workspace file:', e.message);
+  }
   console.log('Workspace file dynamically generated for selected repos.');
 }
 

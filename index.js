@@ -68,6 +68,10 @@ function main() {
     console.error("A folder named 'ledfx-dev-yz' already exists in this directory.\nPlease move or remove it before running this command to avoid overwriting your data.\nAborting.");
     process.exit(1);
   }
+  if (!process.stdin.isTTY) {
+    console.error('Interactive prompts require a TTY. Please run this script in a proper terminal.');
+    process.exit(1);
+  }
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
@@ -121,7 +125,30 @@ function main() {
                     rl.close();
                     return;
                   }
-                  console.log(`\nSuccess! Open ${dir}/ledfx.code-workspace in VS Code and run the Init Workspace task.`);
+                  // Add __welcome__ folder to workspace file
+                  const workspacePath = path.join(process.cwd(), dir, 'ledfx.code-workspace');
+                  let workspaceJson;
+                  try {
+                    workspaceJson = JSON.parse(fs.readFileSync(workspacePath, 'utf8'));
+                  } catch (e) {
+                    console.error('Could not read workspace file:', e.message);
+                    rl.close();
+                    return;
+                  }
+                  if (!Array.isArray(workspaceJson.folders)) workspaceJson.folders = [];
+                  // Only add __welcome__ if not already present
+                  const hasWelcome = workspaceJson.folders.some(f => f.path === "__welcome__");
+                  if (!hasWelcome) {
+                    workspaceJson.folders.push({ path: "__welcome__", name: "_Welcome_" });
+                    fs.writeFileSync(workspacePath, JSON.stringify(workspaceJson, null, 2));
+                  }
+
+                  // Create __welcome__/README.md
+                  const welcomeDir = path.join(process.cwd(), dir, '__welcome__');
+                  if (!fs.existsSync(welcomeDir)) fs.mkdirSync(welcomeDir);
+                  const welcomeReadme = path.join(welcomeDir, 'README.md');
+                  fs.writeFileSync(welcomeReadme, '# Welcome!\n\nUse **Run Task** (Ctrl+Shift+P → Run Task) to initialize or start a subproject.');
+
                   // Auto-run ledfx.setup.js as a child process if present
                   const setupPath = path.join(process.cwd(), dir, 'ledfx.setup.js');
                   if (fs.existsSync(setupPath)) {
@@ -136,7 +163,6 @@ function main() {
                         console.error(`ledfx.setup.js exited with code ${code}`);
                       }
                       // Auto-open workspace file in VS Code
-                      const workspacePath = path.join(process.cwd(), dir, 'ledfx.code-workspace');
                       const openVSCode = spawn('code', [workspacePath], {
                         cwd: path.join(process.cwd(), dir),
                         stdio: 'inherit',
@@ -153,6 +179,21 @@ function main() {
                       rl.close();
                     });
                   } else {
+                    // Auto-open workspace file in VS Code
+                    const { spawn } = require('child_process');
+                    const openVSCode = spawn('code', [workspacePath], {
+                      cwd: path.join(process.cwd(), dir),
+                      stdio: 'inherit',
+                      shell: true
+                    });
+                    openVSCode.on('error', (err) => {
+                      if (err.code === 'ENOENT') {
+                        console.error('VS Code (code) command not found. Please open the workspace file manually:');
+                        console.error(workspacePath);
+                      } else {
+                        console.error('Failed to open workspace in VS Code:', err.message);
+                      }
+                    });
                     rl.close();
                   }
                 });
