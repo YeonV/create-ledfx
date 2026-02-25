@@ -1,4 +1,8 @@
+
 name: Release ledfx-dev zip
+
+permissions:
+  contents: write
 
 on:
   push:
