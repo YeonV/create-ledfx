@@ -1,0 +1,17 @@
+{
+  "name": "create-ledfx",
+  "version": "1.0.0",
+  "description": "Project scaffolding tool for LedFx projects.",
+  "bin": {
+    "create-ledfx": "index.js"
+  },
+  "keywords": [
+    "ledfx",
+    "scaffold",
+    "init",
+    "create",
+    "starter"
+  ],
+  "author": "",
+  "license": "MIT"
+}

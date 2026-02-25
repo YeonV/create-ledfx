@@ -1,0 +1,29 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Init Workspace (clone all repos)",
+        "type": "shell",
+        "command": "node",
+        "args": ["ledfx.setup.js"],
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "presentation": {
+          "reveal": "always"
+        },
+        "group": "build"
+      }
+    ]
+  },
+  "settings": {
+    "workbench.startupEditor": "readme",
+    "startupEditor": "ledfx.setup.js"
+  }
+}
