@@ -1,9 +1,13 @@
 {
   "name": "create-ledfx",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Project scaffolding tool for LedFx projects.",
   "bin": {
     "create-ledfx": "index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YeonV/create-ledfx.git"
   },
   "keywords": [
     "ledfx",
@@ -12,6 +16,10 @@
     "create",
     "starter"
   ],
-  "author": "",
-  "license": "MIT"
+  "author": "YeonV a.k.a. Blade<dev@yeonv.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node index.js",
+    "setup": "node ./ledfx-dev/ledfx.setup.js"
+  }
 }
