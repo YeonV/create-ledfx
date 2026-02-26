@@ -20,7 +20,6 @@
   "license": "MIT",
   "scripts": {
     "start": "node index.js",
-    "setup": "node ./ledfx-dev/ledfx.setup.js",
-    "publish": "npm publish"
+    "setup": "node ./ledfx-dev/ledfx.setup.js"
   }
 }
