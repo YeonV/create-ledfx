@@ -1,6 +1,6 @@
 {
   "name": "create-ledfx",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Project scaffolding tool for LedFx projects.",
   "bin": {
     "create-ledfx": "index.js"

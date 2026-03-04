@@ -73,6 +73,15 @@ function cloneRepo(folder, url, upstream) {
   }
 }
 
+function isInstalled(cmd) {
+  try {
+    execSync(process.platform === 'win32' ? `where ${cmd}` : `which ${cmd}`, { stdio: 'pipe' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function showMenuAndClone() {
   const stdin = process.stdin;
   const stdout = process.stdout;
@@ -187,6 +196,53 @@ function runCloning(selectedRepos) {
     console.log(`\n${GREEN}Workspace file dynamically generated for selected repos!${RESET}`);
   } catch (e) {
     console.error(`\n${YELLOW}Failed to write workspace file: ${e.message}${RESET}`);
+  }
+
+  // 6. Auto-install yarn / pnpm; note missing uv in welcome README
+  const needsYarn = selectedRepos.some(r => ['frontend', '_download', '_react-dynamic-module'].includes(r.folder));
+  const needsPnpm = selectedRepos.some(r => r.folder === '_audio-visualiser');
+  const needsUv   = selectedRepos.some(r => r.folder === 'backend');
+
+  if (needsYarn && !isInstalled('yarn')) {
+    console.log(`\n${CYAN}yarn not found — installing via npm...${RESET}`);
+    try { execSync('npm install -g yarn', { stdio: 'inherit' }); }
+    catch (e) { console.log(`${YELLOW}Failed to auto-install yarn: ${e.message}${RESET}`); }
+  }
+
+  if (needsPnpm && !isInstalled('pnpm')) {
+    console.log(`\n${CYAN}pnpm not found — installing via npm...${RESET}`);
+    try { execSync('npm install -g pnpm', { stdio: 'inherit' }); }
+    catch (e) { console.log(`${YELLOW}Failed to auto-install pnpm: ${e.message}${RESET}`); }
+  }
+
+  if (needsUv && !isInstalled('uv')) {
+    const welcomeReadme = path.join('__welcome__', 'README.md');
+    const uvContent = [
+      '# Welcome!',
+      '',
+      'Use **Run Task** (Ctrl+Shift+P → Run Task) to initialize or start a subproject.',
+      '',
+      '---',
+      '',
+      '## ⚠️ Missing Dependency: `uv`',
+      '',
+      'The **Backend** repo requires [`uv`](https://docs.astral.sh/uv/) (Python package manager).',
+      'Install it before running **[Backend] Init** or **[Backend] Start**:',
+      '',
+      '**Linux / macOS:**',
+      '```sh',
+      'curl -LsSf https://astral.sh/uv/install.sh | sh',
+      '```',
+      '',
+      '**Windows (PowerShell):**',
+      '```powershell',
+      'powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"',
+      '```',
+      '',
+      '📖 Full docs: https://docs.astral.sh/uv/getting-started/installation/',
+    ].join('\n');
+    try { fs.writeFileSync(welcomeReadme, uvContent); }
+    catch (e) { console.log(`${YELLOW}Could not update welcome README: ${e.message}${RESET}`); }
   }
 }
 
